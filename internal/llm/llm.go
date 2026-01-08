@@ -136,6 +136,8 @@ func (c *Client) callPython(action string, req interface{}) (*Response, error) {
 		return nil, fmt.Errorf("序列化请求失败: %w", err)
 	}
 
+	logrus.WithField("request_json", string(reqJSON)).Debug("传递给 Python 的配置")
+
 	// 执行Python脚本
 	cmd := exec.Command(c.config.PythonInterpreter, c.config.PythonScript)
 	cmd.Stdin = bytes.NewReader(reqJSON)
@@ -152,6 +154,10 @@ func (c *Client) callPython(action string, req interface{}) (*Response, error) {
 
 	select {
 	case err := <-done:
+		// 总是输出 stderr（包含调试信息）
+		if stderrStr := stderr.String(); stderrStr != "" {
+			logrus.WithField("python_stderr", stderrStr).Debug("Python 脚本输出")
+		}
 		if err != nil {
 			return nil, fmt.Errorf("执行Python脚本失败: %w, stderr: %s", err, stderr.String())
 		}
@@ -199,6 +205,10 @@ func (c *Client) callPythonForSummary(req SummaryRequest) (*SummaryResponse, err
 
 	select {
 	case err := <-done:
+		// 总是输出 stderr（包含调试信息）
+		if stderrStr := stderr.String(); stderrStr != "" {
+			logrus.WithField("python_stderr", stderrStr).Debug("Python 脚本输出")
+		}
 		if err != nil {
 			return nil, fmt.Errorf("执行Python脚本失败: %w, stderr: %s", err, stderr.String())
 		}

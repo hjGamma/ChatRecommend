@@ -102,6 +102,12 @@ func main() {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 
+	// 静态文件服务（用于测试界面）
+	router.Static("/static", "./static")
+	router.GET("/", func(c *gin.Context) {
+		c.File("./static/index.html")
+	})
+
 	// 启动HTTP服务器
 	httpAddr := fmt.Sprintf(":%d", cfg.Server.HTTPPort)
 	logrus.Infof("HTTP服务器启动在端口 %d", cfg.Server.HTTPPort)

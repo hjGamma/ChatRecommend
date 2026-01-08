@@ -115,8 +115,11 @@ func (c *Client) writePump() {
 				return
 			}
 
+			logrus.WithField("message_size", len(message)).Debug("writePump: 从通道接收消息")
+
 			w, err := c.conn.NextWriter(websocket.TextMessage)
 			if err != nil {
+				logrus.WithError(err).Error("创建写入器失败")
 				return
 			}
 			w.Write(message)
@@ -129,11 +132,15 @@ func (c *Client) writePump() {
 			}
 
 			if err := w.Close(); err != nil {
+				logrus.WithError(err).Error("关闭写入器失败")
 				return
 			}
+
+			logrus.Debug("writePump: 消息已发送")
 		case <-ticker.C:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+				logrus.WithError(err).Error("发送 Ping 失败")
 				return
 			}
 		}
@@ -149,6 +156,11 @@ func (c *Client) handleMessage(msg *WSMessage) {
 			return
 		}
 
+		logrus.WithFields(logrus.Fields{
+			"conversation_id": msg.AutocompleteRequest.ConversationID,
+			"input":           msg.AutocompleteRequest.Input,
+		}).Debug("WebSocket 收到补全请求")
+
 		// 保存conversation_id和sender_id
 		c.conversationID = msg.AutocompleteRequest.ConversationID
 		c.senderID = msg.AutocompleteRequest.SenderID
@@ -156,9 +168,15 @@ func (c *Client) handleMessage(msg *WSMessage) {
 		// 获取补全建议
 		resp, err := c.handler.autocomplete.GetSuggestionsWithDebounce(msg.AutocompleteRequest)
 		if err != nil {
+			logrus.WithError(err).Error("获取补全建议失败")
 			c.sendError(err.Error())
 			return
 		}
+
+		logrus.WithFields(logrus.Fields{
+			"suggestions_count": len(resp.Suggestions),
+			"suggestions":       resp.Suggestions,
+		}).Debug("准备发送补全响应")
 
 		// 发送响应
 		response := WSMessage{
@@ -180,8 +198,11 @@ func (c *Client) sendMessage(msg *WSMessage) {
 		return
 	}
 
+	logrus.WithField("message", string(data)).Debug("发送 WebSocket 消息")
+
 	select {
 	case c.send <- data:
+		logrus.Debug("消息已放入发送通道")
 	default:
 		logrus.Warn("发送通道已满，丢弃消息")
 	}

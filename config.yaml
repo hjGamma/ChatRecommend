@@ -3,14 +3,14 @@ llm:
   # Python脚本路径
   python_script: "./python/llm_client.py"
   # Python解释器路径（如果不在PATH中）
-  python_interpreter: "python3"
+  python_interpreter: "python"
   # 模型类型：openai, anthropic, custom
   model_type: "openai"
   # API配置
   api:
-    base_url: "https://api.openai.com/v1"
-    api_key: "your-api-key-here"
-    model: "gpt-4"
+    base_url: "https://open.bigmodel.cn/api/paas/v4/"
+    api_key: "18738a39cd5c4601a94cc49e32942012.bXBvo1PrjoyLXbEi"
+    model: "glm-4"
     temperature: 0.7
     max_tokens: 2000
     top_p: 1.0
@@ -60,8 +60,8 @@ database:
 
 # 日志配置
 log:
-  level: "info"  # debug, info, warn, error
-  format: "json"  # json, text
+  level: "debug"  # debug, info, warn, error
+  format: "text"  # json, text
   output: "stdout"  # stdout, file
   file_path: "./logs/app.log"
 

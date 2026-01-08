@@ -32,14 +32,14 @@ type LLMConfig struct {
 
 // APIConfig API配置
 type APIConfig struct {
-	BaseURL          string  `mapstructure:"base_url"`
-	APIKey           string  `mapstructure:"api_key"`
-	Model            string  `mapstructure:"model"`
-	Temperature      float64 `mapstructure:"temperature"`
-	MaxTokens        int     `mapstructure:"max_tokens"`
-	TopP             float64 `mapstructure:"top_p"`
-	FrequencyPenalty float64 `mapstructure:"frequency_penalty"`
-	PresencePenalty  float64 `mapstructure:"presence_penalty"`
+	BaseURL          string  `mapstructure:"base_url" json:"base_url"`
+	APIKey           string  `mapstructure:"api_key" json:"api_key"`
+	Model            string  `mapstructure:"model" json:"model"`
+	Temperature      float64 `mapstructure:"temperature" json:"temperature"`
+	MaxTokens        int     `mapstructure:"max_tokens" json:"max_tokens"`
+	TopP             float64 `mapstructure:"top_p" json:"top_p"`
+	FrequencyPenalty float64 `mapstructure:"frequency_penalty" json:"frequency_penalty"`
+	PresencePenalty  float64 `mapstructure:"presence_penalty" json:"presence_penalty"`
 }
 
 // ContextConfig 上下文配置

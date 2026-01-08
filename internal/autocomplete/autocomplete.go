@@ -86,38 +86,47 @@ func (e *Engine) GetSuggestionsWithDebounce(req *models.AutocompleteRequest) (*m
 	// 生成去抖键
 	debounceKey := fmt.Sprintf("%s:%s", req.ConversationID, req.SenderID)
 
-	// 检查是否有正在进行的请求
+	// 检查是否有正在进行的请求，如果有则停止
 	if existing, ok := e.debounceMap.Load(debounceKey); ok {
 		if timer, ok := existing.(*time.Timer); ok {
 			timer.Stop()
 		}
 	}
 
-	// 创建结果通道
+	// 创建一个单次通道用于结果
 	resultChan := make(chan *models.AutocompleteResponse, 1)
 	errorChan := make(chan error, 1)
 
 	// 设置去抖定时器
 	timer := time.AfterFunc(time.Duration(e.config.DebounceMs)*time.Millisecond, func() {
+		defer func() {
+			e.debounceMap.Delete(debounceKey)
+		}()
+
 		resp, err := e.GetSuggestions(req)
 		if err != nil {
-			errorChan <- err
+			select {
+			case errorChan <- err:
+			default:
+			}
 		} else {
-			resultChan <- resp
+			select {
+			case resultChan <- resp:
+			default:
+			}
 		}
-		e.debounceMap.Delete(debounceKey)
 	})
 
 	e.debounceMap.Store(debounceKey, timer)
 
-	// 等待结果
+	// 等待结果，设置更长的超时时间
 	select {
 	case resp := <-resultChan:
 		return resp, nil
 	case err := <-errorChan:
 		return nil, err
-	case <-time.After(time.Duration(e.config.DebounceMs)*2*time.Millisecond + 5*time.Second):
-		return nil, fmt.Errorf("获取补全建议超时")
+	case <-time.After(30 * time.Second):
+		return nil, fmt.Errorf("获取补全建议超时（30秒）")
 	}
 }
 

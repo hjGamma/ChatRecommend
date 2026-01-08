@@ -8,7 +8,13 @@
 import json
 import sys
 import os
+import io
 from typing import Dict, List, Any, Optional
+
+# 设置标准输出为 UTF-8 编码（Windows 兼容）
+if sys.platform == 'win32':
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 try:
     import openai
@@ -37,6 +43,9 @@ def call_openai_api(request: Dict[str, Any], config: Dict[str, Any]) -> Dict[str
         return {"error": "OpenAI库未安装，请运行: pip install openai"}
 
     api_config = config.get("api", {})
+    print(f"[DEBUG] API config: {api_config}", file=sys.stderr)
+    print(f"[DEBUG] API key from config: {api_config.get('api_key', 'NOT FOUND')}", file=sys.stderr)
+
     client = OpenAI(
         api_key=api_config.get("api_key", os.getenv("OPENAI_API_KEY", "")),
         base_url=api_config.get("base_url", "https://api.openai.com/v1")
@@ -44,7 +53,13 @@ def call_openai_api(request: Dict[str, Any], config: Dict[str, Any]) -> Dict[str
 
     context = request.get("context", "")
     input_text = request.get("input", "")
-    
+
+    # 确保文本是有效的 UTF-8
+    if context:
+        context = context.encode('utf-8', errors='replace').decode('utf-8', errors='replace')
+    if input_text:
+        input_text = input_text.encode('utf-8', errors='replace').decode('utf-8', errors='replace')
+
     # 构建消息
     messages = []
     if context:
@@ -64,7 +79,11 @@ def call_openai_api(request: Dict[str, Any], config: Dict[str, Any]) -> Dict[str
         )
 
         text = response.choices[0].message.content
-        
+
+        # 确保返回的文本是有效的 UTF-8
+        if text:
+            text = text.encode('utf-8', errors='replace').decode('utf-8', errors='replace')
+
         # 生成多个建议（简单实现：基于不同temperature）
         suggestions = [text]
         if len(suggestions) < 3:
