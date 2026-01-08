@@ -1,0 +1,48 @@
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+
+# 依赖
+vendor/
+
+# 数据库
+*.db
+*.sqlite
+*.sqlite3
+data/
+
+# 日志
+logs/
+*.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# 配置文件（包含敏感信息）
+config.local.yaml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# 操作系统
+.DS_Store
+Thumbs.db
+

@@ -1,0 +1,67 @@
+# 大模型配置
+llm:
+  # Python脚本路径
+  python_script: "./python/llm_client.py"
+  # Python解释器路径（如果不在PATH中）
+  python_interpreter: "python3"
+  # 模型类型：openai, anthropic, custom
+  model_type: "openai"
+  # API配置
+  api:
+    base_url: "https://api.openai.com/v1"
+    api_key: "your-api-key-here"
+    model: "gpt-4"
+    temperature: 0.7
+    max_tokens: 2000
+    top_p: 1.0
+    frequency_penalty: 0.0
+    presence_penalty: 0.0
+  # 超时配置（秒）
+  timeout: 30
+
+# 上下文配置
+context:
+  # 最大上下文长度（tokens）
+  max_context_tokens: 4000
+  # 近期消息数量（用于风格学习）
+  recent_messages_count: 50
+  # 摘要更新阈值（消息数量）
+  summary_update_threshold: 100
+  # 摘要更新阈值（小时）
+  summary_update_hours: 24
+  # 保留的历史消息数量
+  history_retention_count: 1000
+
+# 自动补全配置
+autocomplete:
+  # 触发补全的最小字符数
+  min_trigger_length: 3
+  # 补全建议数量
+  suggestion_count: 3
+  # 请求去抖延迟（毫秒）
+  debounce_ms: 300
+
+# 服务器配置
+server:
+  # HTTP端口
+  http_port: 8080
+  # WebSocket端口
+  ws_port: 8081
+  # 允许的 origins
+  allowed_origins:
+    - "*"
+
+# 数据库配置
+database:
+  # SQLite数据库路径
+  db_path: "./data/chat.db"
+  # 日志模式
+  log_mode: false
+
+# 日志配置
+log:
+  level: "info"  # debug, info, warn, error
+  format: "json"  # json, text
+  output: "stdout"  # stdout, file
+  file_path: "./logs/app.log"
+
