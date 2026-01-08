@@ -9,7 +9,7 @@ llm:
   # API配置
   api:
     base_url: "https://open.bigmodel.cn/api/paas/v4/"
-    api_key: "18738a39cd5c4601a94cc49e32942012.bXBvo1PrjoyLXbEi"
+    api_key: "123.bXBvo1PrjoyLXbEi"
     model: "glm-4"
     temperature: 0.7
     max_tokens: 2000
